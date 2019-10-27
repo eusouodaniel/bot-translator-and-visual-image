@@ -7,3 +7,5 @@ tmp
 dist
 yarn-error.log
 yarn.lock
+*.wav
+*.ogg

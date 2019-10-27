@@ -47,6 +47,25 @@ class MessengerService {
     this.connectAPI(messageData);
   }
 
+  sendAudio(recipientID, messageText) {
+    const messageData = {
+      recipient: {
+        id: recipientID
+      },
+      message: {
+        attachment: {
+          "type":"audio",
+          "payload":{
+            "url":"http://www.messenger-rocks.com/image.jpg",
+            "is_reusable":true
+          }
+        }
+      }
+    };
+
+    this.connectAPI(messageData);
+  }
+
   connectAPI(messageData) {
     request(
       {
