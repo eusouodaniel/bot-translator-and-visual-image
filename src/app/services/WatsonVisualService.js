@@ -6,15 +6,12 @@ class WatsonVisualService {
   async index(req) {
     const connectVisualRecognition = await this.visualRecognition();
     const data = req;
-    console.log(data);
     if (data && data.object === 'page') {
       data.entry.forEach(function(entry) {
         entry.messaging.forEach(function(event) {
           if (event.message.attachments) {
-            console.log(JSON.stringify(event.message.attachments));
             if (event.message.attachments[0].type === 'image') {
               const imageURL = event.message.attachments[0].payload.url;
-              console.log(imageURL);
               const params = {
                 url: imageURL,
               };

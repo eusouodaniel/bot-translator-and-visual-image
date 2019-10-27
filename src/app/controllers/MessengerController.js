@@ -11,12 +11,6 @@ class MessengerController {
     return res.sendStatus(200);
   }
 
-  async test(req, res) {
-    await WatsonVisualService.index();
-
-    return res.sendStatus(200);
-  }
-
   checkToken(req, res) {
     const token = MessengerService.checkToken(req.query);
 

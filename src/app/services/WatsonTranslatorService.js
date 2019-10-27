@@ -11,7 +11,6 @@ class WatsonTranslatorService {
     if (data && data.object === 'page') {
       data.entry.forEach(function(entry) {
         entry.messaging.forEach(function(event) {
-          console.log(event);
           if (event.message && !event.message.attachments) {
             const identifyParams = {
               text: event.message.text,
