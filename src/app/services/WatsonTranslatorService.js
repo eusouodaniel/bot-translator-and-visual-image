@@ -1,6 +1,7 @@
 /* eslint-disable dot-notation */
 import LanguageTranslatorV3 from 'watson-developer-cloud/language-translator/v3';
 import MessengerService from './MessengerService';
+import WatsonTextToSpeech from './WatsonTextToSpeech';
 
 class WatsonTranslatorService {
   async index(req) {
@@ -37,13 +38,23 @@ class WatsonTranslatorService {
                     target,
                   };
 
+                  if (target === 'pt') {
+                    target = process.env.WATSON_API_VOICE_PT_TTS;
+                  } else {
+                    target = process.env.WATSON_API_VOICE_EN_TTS;
+                  }
                   connectLanguageTranslator
                     .translate(translateParams)
-                    .then(translationResult => {
+                    .then(async translationResult => {
                       MessengerService.treatMessage(
                         // eslint-disable-next-line prettier/prettier
                         event, translationResult['translations'][0]['translation'], translationResult['character_count'], translationResult['word_count']
                       );
+                      const url = await WatsonTextToSpeech.index(
+                        event.message.text,
+                        target
+                      );
+                      MessengerService.treatMessageAudio(event, url);
                     })
                     .catch(err => {
                       return err;

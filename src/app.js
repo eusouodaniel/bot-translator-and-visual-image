@@ -1,13 +1,13 @@
-import "dotenv/config";
-import cors from "cors";
-import express from "express";
-import "express-async-errors";
-import Youch from "youch";
-import * as Sentry from "@sentry/node";
-import bodyParser from "body-parser";
-import "express-group-routes";
-import routes from "./routes";
-import sentryConfig from "./config/sentry";
+import 'dotenv/config';
+import cors from 'cors';
+import express from 'express';
+import 'express-async-errors';
+import Youch from 'youch';
+import * as Sentry from '@sentry/node';
+import bodyParser from 'body-parser';
+import 'express-group-routes';
+import routes from './routes';
+import sentryConfig from './config/sentry';
 
 class App {
   constructor() {
@@ -17,7 +17,7 @@ class App {
     this.body();
     this.middlewares();
     this.routes();
-    this.exception();
+    // this.exception();
   }
 
   body() {
@@ -38,12 +38,12 @@ class App {
 
   exception() {
     this.server.use(async (err, req, res, next) => {
-      if (process.env.APP_ENV === "local") {
+      if (process.env.APP_ENV === 'local') {
         const errors = await new Youch(err, req).toJSON();
-        return res.status(500).json(errors);
+        return res.json(errors);
       }
 
-      return res.status(500).json({ error: "Internal error" });
+      return res.sendStatus(500).json({ error: 'Internal error' });
     });
   }
 }

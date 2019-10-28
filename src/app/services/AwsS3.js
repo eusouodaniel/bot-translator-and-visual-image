@@ -1,21 +1,41 @@
-import { s3Upload } from 'upload-files-to-aws';
+import AWS from 'aws-sdk';
+import uuidv4 from 'uuid/v4';
 
 class AwsS3 {
-  index(file) {
+  async uploadToS3(data) {
+    const name = uuidv4();
     try {
-      this.body = s3Upload(
-        process.env.AWS_ACCESS_KEY,
-        process.env.AWS_SECRET_ACESS_KEY,
-        process.env.BUCKET_NAME,
-        process.env.REGION,
-        file
-      );
+      const s3 = await this.connectToS3();
 
-      return 200;
+      const params = {
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: `audios/${name}.wav`,
+        Body: data,
+        ContentType: 'audio/x-wav',
+        ACL: 'public-read',
+      };
+      const result = await s3
+        .upload(params, async function(err, body) {
+          if (body) {
+            return body.Location;
+          }
+        })
+        .promise();
+
+      return result.Location;
     } catch (error) {
-      this.body = { error: error.message };
       return 503;
     }
+  }
+
+  async connectToS3() {
+    const s3bucket = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+    });
+
+    return s3bucket;
   }
 }
 

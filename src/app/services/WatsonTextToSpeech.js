@@ -1,11 +1,9 @@
-import fs from 'fs';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
 import { IamAuthenticator } from 'ibm-watson/auth';
-import path from 'path';
-import uuidv4 from 'uuid/v4';
+import AwsS3 from './AwsS3';
 
 class WatsonTextToSpeech {
-  async index(text, voice = process.env.WATSON_API_VOICE_PT_TTS) {
+  async index(text = 'daniel', voice = process.env.WATSON_API_VOICE_PT_TTS) {
     const textToSpeech = await this.textToSpeech();
 
     const params = {
@@ -14,21 +12,12 @@ class WatsonTextToSpeech {
       accept: 'audio/wav',
     };
 
-    const audioName = uuidv4();
+    const response = await textToSpeech.synthesize(params);
+    const audio = response.result;
+    const repairedFile = await textToSpeech.repairWavHeaderStream(audio);
+    const urlS3 = await AwsS3.uploadToS3(repairedFile);
 
-    textToSpeech
-      .synthesize(params)
-      .then(response => {
-        const audio = response.result;
-        return textToSpeech.repairWavHeaderStream(audio);
-      })
-      .then(repairedFile => {
-        fs.writeFileSync(`${audioName}.wav`, repairedFile);
-      });
-
-    return fs.createWriteStream(
-      path.join(__dirname, '../../../', `${audioName}.wav`)
-    ).path;
+    return urlS3.Location;
   }
 
   async textToSpeech() {

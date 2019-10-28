@@ -34,6 +34,15 @@ class MessengerService {
     }
   }
 
+  treatMessageAudio(event, audio = null) {
+    const senderID = event.sender.id;
+    if (audio) {
+        this.sendAudio(senderID, audio);
+    } else {
+        this.sendMessage(senderID, "Não identificamos o arquivo que você enviou");
+    }
+  }
+
   sendMessage(recipientID, messageText) {
     const messageData = {
       recipient: {
@@ -47,7 +56,7 @@ class MessengerService {
     this.connectAPI(messageData);
   }
 
-  sendAudio(recipientID, messageText) {
+  sendAudio(recipientID, uri) {
     const messageData = {
       recipient: {
         id: recipientID
@@ -56,8 +65,7 @@ class MessengerService {
         attachment: {
           "type":"audio",
           "payload":{
-            "url":"http://www.messenger-rocks.com/image.jpg",
-            "is_reusable":true
+            "url": encodeURI(uri)
           }
         }
       }
